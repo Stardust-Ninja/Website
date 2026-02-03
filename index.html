@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levente Grozly || IT Expert & HBO ICT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020406;
+            --accent: #fde6a6; 
+            --card: rgba(255, 255, 255, 0.03); 
+            --border: rgba(253, 230, 166, 0.15); 
+            --text: #e2e8f0;
+            --text-dim: #8a99ae;
+            --terminal-green: #4ade80;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px 10px; }
+
+        .bg-layer { position: fixed; inset: 0; z-index: -1; background-image: radial-gradient(circle at 2px 2px, var(--border) 1px, transparent 0); background-size: 45px 45px; mask-image: radial-gradient(circle at center, black, transparent 90%); }
+
+        .bento-container { 
+            display: grid; 
+            grid-template-columns: 380px 1fr; 
+            grid-template-rows: 1fr auto; 
+            gap: 16px; 
+            width: 96vw; 
+            height: 92vh; 
+            max-width: 1600px; 
+            z-index: 1; 
+        }
+        
+        .tile { 
+            background: var(--card); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            padding: 32px; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; }
+        .profile-img { width: 90px; height: 90px; border-radius: 20px; border: 2px solid var(--accent); box-shadow: 0 0 15px rgba(253, 230, 166, 0.25); object-fit: cover; flex-shrink: 0; }
+
+        /* LANGUAGE LOGIC */
+        input[name="lang"] { display: none; }
+        .lang-en, .lang-nl, .lang-hu { display: none !important; }
+        #en:checked ~ .bento-container .lang-en { display: block !important; }
+        #en:checked ~ .bento-container span.lang-en { display: inline-block !important; }
+        #nl:checked ~ .bento-container .lang-nl { display: block !important; }
+        #nl:checked ~ .bento-container span.lang-nl { display: inline-block !important; }
+        #hu:checked ~ .bento-container .lang-hu { display: block !important; }
+        #hu:checked ~ .bento-container span.lang-hu { display: inline-block !important; }
+
+        .lang-switch { display: flex; gap: 8px; margin-bottom: 20px; }
+        .lang-btn { font-size: 0.65rem; padding: 6px 14px; border: 1px solid var(--border); cursor: pointer; border-radius: 6px; opacity: 0.4; transition: 0.2s; color: var(--text-dim); background: transparent; }
+        #en:checked ~ .bento-container label[for="en"], #nl:checked ~ .bento-container label[for="nl"], #hu:checked ~ .bento-container label[for="hu"] { opacity: 1; border-color: var(--accent); color: var(--accent); background: rgba(253, 230, 166, 0.05); }
+
+        h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; color: var(--accent); line-height: 1.1; margin: 0; }
+        .about-me-box { font-size: 0.9rem; line-height: 1.6; color: var(--text-dim); margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 25px; }
+        
+        .tech-label { font-size: 0.65rem; color: var(--accent); letter-spacing: 2px; font-weight: 700; margin-bottom: 12px; }
+        .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tech-tag { font-size: 0.75rem; border: 1px solid var(--border); padding: 5px 12px; border-radius: 8px; background: rgba(255,255,255,0.02); }
+        .spacer-line { height: 1px; background: var(--border); margin: 35px 0; width: 100%; }
+
+        /* TABS */
+        input[name="tabs"] { display: none; }
+        .tab-triggers { display: flex; gap: 24px; margin-bottom: 20px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+        .tab-label { font-family: 'Space Grotesk', sans-serif; font-size: 0.75rem; color: var(--text-dim); cursor: pointer; padding-bottom: 10px; text-transform: uppercase; transition: 0.3s; white-space: nowrap; }
+        #tab-edu:checked ~ .tab-triggers label[for="tab-edu"], #tab-exp:checked ~ .tab-triggers label[for="tab-exp"], #tab-proj:checked ~ .tab-triggers label[for="tab-proj"], #tab-cert:checked ~ .tab-triggers label[for="tab-cert"] { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+        .tab-content { display: none; height: 100%; overflow-y: auto; scrollbar-width: none; }
+        #tab-edu:checked ~ .content-edu, #tab-exp:checked ~ .content-exp, #tab-proj:checked ~ .content-proj, #tab-cert:checked ~ .content-cert { display: block; }
+
+        /* ITEMS */
+        input[type="checkbox"] { display: none; }
+        .item-card { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 12px; background: rgba(255, 255, 255, 0.01); }
+        .item-header { padding: 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 10px; }
+        .glow-text { color: var(--accent); text-shadow: 0 0 12px rgba(253, 230, 166, 0.4); font-weight: 700; }
+        .sep { margin: 0 8px; color: var(--border); font-weight: 300; }
+        .item-body { max-height: 1000px; padding: 10px 18px 20px; opacity: 1; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 0.85rem; line-height: 1.6; transition: 0.3s ease; overflow: hidden; }
+        input[type="checkbox"]:checked + label + .item-body { max-height: 0; padding: 0 18px; opacity: 0; border-top: none; }
+
+        /* FOOTER & X-RAY STATUS BUTTON */
+        .footer { grid-column: span 2; display: flex; justify-content: center; align-items: center; min-height: 90px; padding: 0 32px; position: relative; background: var(--card); border: 1px solid var(--border); }
+        .footer-left { position: absolute; left: 32px; display: flex; flex-direction: column; gap: 4px; }
+        .footer-links { display: flex; gap: 40px; }
+        .footer-right { position: absolute; right: 32px; }
+        
+        .footer-links a { 
+            color: var(--text-dim); 
+            text-decoration: none; 
+            font-weight: 600; 
+            font-size: 0.75rem; 
+            transition: 0.3s; 
+            letter-spacing: 1px;
+            position: relative;
+        }
+        
+        .footer-links a:hover { 
+            color: var(--accent); 
+            text-shadow: 0 0 10px rgba(253, 230, 166, 0.5);
+        }
+
+        .status-indicator { 
+            position: relative;
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 10px 18px; 
+            background: rgba(74, 222, 128, 0.05); 
+            border: 1px solid rgba(74, 222, 128, 0.15); 
+            border-radius: 14px; 
+            color: var(--terminal-green); 
+            font-weight: 600; 
+            font-size: 0.75rem; 
+            white-space: nowrap; 
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 210px;
+            overflow: hidden;
+        }
+
+        .status-text-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+        .default-text { transition: transform 0.4s ease, opacity 0.4s ease; display: block; }
+        .hover-text { position: absolute; left: 0; opacity: 0; transform: translateX(-10px); font-family: 'Fira Code', monospace; transition: all 0.4s ease; color: var(--terminal-green); }
+
+        .status-indicator:hover { background: rgba(74, 222, 128, 0.1); border-color: var(--terminal-green); box-shadow: 0 0 15px rgba(74, 222, 128, 0.1); }
+        .status-indicator:hover .default-text { opacity: 0; transform: translateX(20px); filter: blur(4px); }
+        .status-indicator:hover .hover-text { opacity: 1; transform: translateX(0); }
+
+        .dot { height: 8px; width: 8px; background-color: var(--terminal-green); border-radius: 50%; box-shadow: 0 0 10px var(--terminal-green); animation: pulse 2s infinite; flex-shrink: 0; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: 0.7; } }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 850px) {
+            body { padding: 10px; align-items: flex-start; }
+            .bento-container { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; height: auto; width: 100%; gap: 12px; }
+            .tile { padding: 24px; height: auto; }
+            .tab-content { overflow-y: visible; }
+            h1 { font-size: 1.8rem; }
+            .footer { grid-column: span 1; flex-direction: column; gap: 20px; padding: 30px 20px; min-height: auto; }
+            .footer-left, .footer-right { position: static; text-align: center; align-items: center; }
+            .footer-links { gap: 20px; flex-wrap: wrap; justify-content: center; }
+            .item-header { flex-direction: column; align-items: flex-start; }
+            .item-header span:last-child { font-size: 0.8rem; margin-top: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <input type="radio" name="lang" id="en" checked>
+    <input type="radio" name="lang" id="nl">
+    <input type="radio" name="lang" id="hu">
+
+    <div class="bg-layer"></div>
+
+    <div class="bento-container">
+        <div class="tile">
+            <div class="lang-switch">
+                <label for="en" class="lang-btn">EN</label>
+                <label for="nl" class="lang-btn">NL</label>
+                <label for="hu" class="lang-btn">HU</label>
+            </div>
+            
+            <div class="sidebar-header">
+                <h1>LEVENTE<br>GROZLY</h1>
+                <img src="me.jpg" alt="Levente Grozly" class="profile-img">
+            </div>
+
+            <div class="about-me-box">
+                <p class="lang-en">Expert IT Systems & Devices student, currently pursuing HBO ICT at Hanze. Bridging industrial infrastructure with automated digital intelligence.</p>
+                <p class="lang-nl">Expert IT Systems & Devices gediplomeerde, momenteel HBO ICT bij de Hanzehogeschool. Verbindt fysieke infrastructuur met digitale automatisering.</p>
+                <p class="lang-hu">Expert IT Systems & Devices végzős, jelenleg HBO ICT hallgató a Hanze egyetemen. Összeköti az ipari infrastruktúrát a digitális automatizációval.</p>
+            </div>
+
+            <div class="tech-label">CORE SKILLS</div>
+            <div class="tech-tags">
+                <span class="tech-tag">Linux Server</span> <span class="tech-tag">Ansible</span>
+                <span class="tech-tag">YAML</span> <span class="tech-tag">Fortinet</span>
+                <span class="tech-tag">PostgreSQL</span> <span class="tech-tag">MySQL</span>
+                <span class="tech-tag">MariaDB</span> <span class="tech-tag">Cisco</span>
+                <span class="tech-tag">Switches</span> <span class="tech-tag">Firewalls</span>
+                <span class="tech-tag">Windows Server Core</span> <span class="tech-tag">AD/ADDS</span>
+            </div>
+
+            <div class="spacer-line"></div>
+
+            <div class="tech-label">SOFT SKILLS</div>
+            <div class="tech-tags">
+                <span class="tech-tag"><span class="lang-en">Problem-solving</span><span class="lang-nl">Probleemoplossend</span><span class="lang-hu">Problémamegoldás</span></span>
+                <span class="tech-tag"><span class="lang-en">Fast Learner</span><span class="lang-nl">Leert snel</span><span class="lang-hu">Gyors tanulás</span></span>
+                <span class="tech-tag"><span class="lang-en">Teamwork</span><span class="lang-nl">Samenwerking</span><span class="lang-hu">Csapatmunka</span></span>
+                <span class="tech-tag"><span class="lang-en">Adaptability</span><span class="lang-nl">Aanpassingsvermogen</span><span class="lang-hu">Alkalmazkodóképesség</span></span>
+            </div>
+        </div>
+
+        <div class="tile">
+            <input type="radio" name="tabs" id="tab-edu" checked>
+            <input type="radio" name="tabs" id="tab-exp">
+            <input type="radio" name="tabs" id="tab-proj">
+            <input type="radio" name="tabs" id="tab-cert">
+
+            <div class="tab-triggers">
+                <label for="tab-edu" class="tab-label"><span class="lang-en">Education</span><span class="lang-nl">Opleiding</span><span class="lang-hu">Tanulmányok</span></label>
+                <label for="tab-exp" class="tab-label"><span class="lang-en">Experience</span><span class="lang-nl">Ervaring</span><span class="lang-hu">Tapasztalat</span></label>
+                <label for="tab-proj" class="tab-label"><span class="lang-en">Projects</span><span class="lang-nl">Projecten</span><span class="lang-hu">Projektek</span></label>
+                <label for="tab-cert" class="tab-label"><span class="lang-en">Certificates</span><span class="lang-nl">Certificaten</span><span class="lang-hu">Oklevelek</span></label>
+            </div>
+
+            <div class="tab-content content-edu">
+                <div class="item-card">
+                    <input type="checkbox" id="edu1"><label for="edu1" class="item-header"><span><strong class="glow-text">HBO ICT</strong><span class="sep">|</span>Hanze University</span><span style="color:var(--accent)">2025 — Present</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Focusing on Software Engineering and System Design.</p>
+                        <p class="lang-nl">Focus op Software Engineering en Systeemontwerp.</p>
+                        <p class="lang-hu">Szoftverfejlesztés és rendszermenedzsment fókusz.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="edu2"><label for="edu2" class="item-header"><span><strong class="glow-text">Expert IT Systems & Devices</strong><span class="sep">|</span>Alfa-college</span><span style="color:var(--accent)">2021 — 2024</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Specialized in network infrastructure and server management.</p>
+                        <p class="lang-nl">Gespecialiseerd in netwerkinfrastructuur en serverbeheer.</p>
+                        <p class="lang-hu">Hálózati infrastruktúra és szerverkezelés specializáció.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content content-exp">
+                <div class="item-card">
+                    <input type="checkbox" id="e1"><label for="e1" class="item-header"><span><strong class="glow-text">Scaffolder</strong><span class="sep">|</span>SI-Europe</span><span style="color:var(--accent)">2024 - 2025</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Industrial structural assembly and logistical coordination.</p>
+                        <p class="lang-nl">Industriële montage en logistieke coördinatie.</p>
+                        <p class="lang-hu">Ipari szerkezeti összeszerelés és logisztikai koordináció.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="e2"><label for="e2" class="item-header"><span><strong class="glow-text">IT Support</strong><span class="sep">|</span>Robin Good</span><span style="color:var(--accent)">2024</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Hardware management and enterprise technical support.</p>
+                        <p class="lang-nl">Hardwarebeheer en technische ondersteuning voor bedrijven.</p>
+                        <p class="lang-hu">Hardverkezelés és vállalati technikai támogatás.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="e3"><label for="e3" class="item-header"><span><strong class="glow-text">All-around Employee</strong><span class="sep">|</span>Supermarket</span><span style="color:var(--accent)">2020 - 2022</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Stock management and customer service.</p>
+                        <p class="lang-nl">Voorraadbeheer en klantenservice.</p>
+                        <p class="lang-hu">Készletkezelés és ügyfélszolgálat.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content content-proj">
+                <div class="item-card">
+                    <input type="checkbox" id="p1"><label for="p1" class="item-header"><span><strong class="glow-text">Internet of Things:</strong> HVAC Automation</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">IoT-driven climate control system using occupancy sensors.</p>
+                        <p class="lang-nl">IoT-gestuurd klimaatbeheersingssysteem.</p>
+                        <p class="lang-hu">IoT-alapú klímaszabályozó rendszer.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="p2"><label for="p2" class="item-header"><span><strong class="glow-text">Cybersecurity:</strong> Honeypot Project</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Decoy system to analyze unauthorized access attempts.</p>
+                        <p class="lang-nl">Decoy-systeem om ongeautoriseerde toegang te analyseren.</p>
+                        <p class="lang-hu">Csapda-rendszer a támadási kísérletek elemzésére.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content content-cert">
+                <div class="item-card">
+                    <input type="checkbox" id="c1"><label for="c1" class="item-header"><span><strong class="glow-text">Ethical Hacker</strong><span class="sep">|</span>Cisco</span><span style="color:var(--accent)">Jan 2025</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Certified threat assessment and ethical hacking.</p>
+                        <p class="lang-nl">Gecertificeerde dreigingsbeoordeling en ethisch hacken.</p>
+                        <p class="lang-hu">Minősített fenyegetéselemzés és etikus hacking.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="c2"><label for="c2" class="item-header"><span><strong class="glow-text">Intro to Cybersecurity</strong><span class="sep">|</span>Cisco</span><span style="color:var(--accent)">Jan 2025</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Privacy, network vulnerabilities, and threat detection.</p>
+                        <p class="lang-nl">Privacy en dreigingsdetectie.</p>
+                        <p class="lang-hu">Adatvédelem és fenyegetésészlelés.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="c3"><label for="c3" class="item-header"><span><strong class="glow-text">VCA vol</strong><span class="sep">|</span>Koninklijke PBNA</span><span style="color:var(--accent)">2024 - 2034</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Safety for Operational Supervisors.</p>
+                        <p class="lang-nl">Veiligheid voor Operationeel Leidinggevenden.</p>
+                        <p class="lang-hu">Biztonságtechnika operatív vezetőknek.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="c4"><label for="c4" class="item-header"><span><strong class="glow-text">Networking Essentials</strong><span class="sep">|</span>Cisco</span><span style="color:var(--accent)">Jul 2022</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Foundations of network architecture.</p>
+                        <p class="lang-nl">Basisprincipes van netwerkarchitectuur.</p>
+                        <p class="lang-hu">A hálózati architektúra alapjai.</p>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <input type="checkbox" id="c5"><label for="c5" class="item-header"><span><strong class="glow-text">Fortinet Security Essentials 1 & 2</strong><span class="sep">|</span>Fortinet</span></label>
+                    <div class="item-body">
+                        <p class="lang-en">Network security protocols and technical essentials.</p>
+                        <p class="lang-nl">Netwerkbeveiligingsprotocollen.</p>
+                        <p class="lang-hu">Hálózati biztonsági protokollok.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tile footer">
+            <div class="footer-left">
+                <div class="loc-tag"><strong>Groningen</strong>, NL</div>
+                <div class="credit-tag" style="opacity: 0.5; font-size: 0.7rem;">Levente Grozly</div>
+            </div>
+            <div class="footer-links">
+                <a href="https://www.linkedin.com/in/levente-grozly-25779a267/" target="_blank">LINKEDIN</a>
+                <a href="https://github.com/Stardust-Ninja" target="_blank">GITHUB</a>
+                <a href="mailto:grozlylevi@gmail.com">GMAIL</a>
+            </div>
+            <div class="footer-right">
+                <div class="status-indicator">
+                    <div class="dot"></div>
+                    <div class="status-text-wrapper">
+                        <span class="default-text lang-en">Available for Internship</span>
+                        <span class="default-text lang-nl">Beschikbaar voor Stage</span>
+                        <span class="default-text lang-hu">Gyakorlatra elérhető</span>
+                        <span class="hover-text">levi@homelab$</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
